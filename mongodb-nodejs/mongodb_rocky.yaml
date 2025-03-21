@@ -1,0 +1,59 @@
+---
+# playbook_mongodb.yml (Rocky)
+- hosts: mongodb
+  become: true
+  tasks:
+    - name: Update dnf cache
+      dnf:
+        update_cache: yes
+
+    - name: Install necessary packages
+      dnf:
+        name:
+          - epel-release
+          - python3
+          - python3-pip
+          - git
+        state: present
+
+    - name: Install required python packages
+      pip:
+        name:
+          - pymongo
+          - requests
+        state: present
+
+    - name: Add MongoDB repo
+      copy:
+        content: |
+          [mongodb-org-7.0]
+          name=MongoDB Repository
+          baseurl=https://repo.mongodb.org/yum/redhat/9/mongodb-org/7.0/x86_64/
+          gpgcheck=1
+          enabled=1
+          gpgkey=https://www.mongodb.org/static/pgp/server-7.0.asc
+        dest: /etc/yum.repos.d/mongodb-org-7.0.repo
+
+    - name: Install MongoDB server
+      dnf:
+        name: mongodb-org
+        state: present
+
+    - name: Configure MongoDB to listen on all interfaces (adjust as needed)
+      lineinfile:
+        path: /etc/mongod.conf
+        regexp: '^#?bindIp: 127.0.0.1'
+        line: 'bindIp: 0.0.0.0'
+      notify: restart mongodb
+
+    - name: Start and enable MongoDB service
+      service:
+        name: mongod
+        state: started
+        enabled: yes
+
+  handlers:
+    - name: restart mongodb
+      service:
+        name: mongod
+        state: restarted

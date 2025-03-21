@@ -1,0 +1,61 @@
+# playbook_db.yml
+---
+- hosts: db_server
+  become: true
+  tasks:
+    - name: Install MariaDB server
+      dnf:
+        name: mariadb-server
+        state: present
+
+    - name: Start and enable MariaDB service
+      service:
+        name: mariadb
+        state: started
+        enabled: true
+
+    - name: Secure MariaDB installation
+      mysql_secure_installatioSn:
+        state: present
+        remove_anonymous_users: yes
+        disallow_remote_root: yes
+        remove_test_db: yes
+        reload_privileges: yes
+        root_password: "DBPassword" # Replace with your actual password.
+
+    - name: Create WordPress database and user
+      mysql_db:
+        name: wordpressdb
+        state: present
+        login_user: root
+        login_password: "DBPassword"
+        login_host: localhost
+        priv: "wordpressuser.*:ALL"
+        encoding: utf8mb4
+        collation: utf8mb4_general_ci
+      register: db_result
+
+    - name: Create WordPress user
+      mysql_user:
+        name: wordpressuser
+        password: "WordpressUserPassword" # Replace with your actual password.
+        priv: "wordpressdb.*:ALL"
+        state: present
+        login_user: root
+        login_password: "DBPassword"
+        login_host: localhost
+      when: db_result.changed
+
+    - name: Allow MariaDB through firewall
+      firewalld:
+        service: mysql
+        permanent: true
+        state: enabled
+      notify:
+        - Reload firewalld
+
+  handlers:
+    - name: Reload firewalld
+      service:
+        name: firewalld
+        state: reloaded

@@ -1,0 +1,85 @@
+---
+# playbook_nodejs.yml (Rocky)
+- hosts: nodejs
+  become: true
+  tasks:
+    - name: Update dnf cache
+      dnf:
+        update_cache: yes
+
+    - name: Install necessary packages
+      dnf:
+        name:
+          - python3
+          - python3-pip
+          - git
+          - ufw
+        state: present
+
+    - name: Install Node.js 18 (or desired version)
+      dnf:
+        name: nodejs-18
+        state: present
+
+    - name: Create app directory
+      file:
+        path: /opt/myapp
+        state: directory
+
+    - name: Copy Node.js app files (replace with your app's files)
+      copy:
+        src: ./myapp/  # Replace with the path to your app files on the Ansible controller
+        dest: /opt/myapp/
+
+    - name: Install Node.js dependencies
+      npm:
+        path: /opt/myapp/
+
+    - name: Install PM2 globally
+      npm:
+        name: pm2
+        global: yes
+
+    - name: Start Node.js app with PM2 (replace app.js with your entry point)
+      command: pm2 start /opt/myapp/app.js
+      register: pm2_start
+      changed_when: pm2_start.rc != 0
+
+    - name: Save PM2 process list
+      command: pm2 save
+
+    - name: Enable PM2 startup on boot
+      command: pm2 startup systemd
+      register: pm2_startup
+      changed_when: pm2_startup.rc != 0
+
+    - name: ensure pm2 is running
+      systemd:
+        name: pm2-root
+        state: started
+        enabled: yes
+
+    - name: Open firewall for Node.js app (adjust port as needed)
+      firewalld:
+        port: 3000/tcp #Replace with your node app port.
+        permanent: true
+        state: enabled
+      notify: reload firewalld
+
+    - name: Enable and start UFW
+      service:
+        name: ufw
+        state: started
+        enabled: yes
+
+    - name: Ensure UFW is running
+      service:
+        name: ufw
+        state: started
+        enabled: yes
+
+  handlers:
+    - name: reload firewalld
+      service:
+        name: firewalld
+        state: reloaded

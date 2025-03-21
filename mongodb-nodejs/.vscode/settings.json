@@ -1,0 +1,11 @@
+{
+    "yaml.schemas": {
+        "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/playbook": [
+            "file:///home/bwilh/pce/pce-examples/mongodb-nodejs/mongodb.yaml",
+            "file:///home/bwilh/pce/pce-examples/mongodb-nodejs/nodejs.yaml",
+            "file:///home/bwilh/pce/pce-examples/mongodb-nodejs/nodejs_rocky.yaml",
+            "file:///home/bwilh/pce/pce-examples/mongodb-nodejs/mongodb_rocky.yaml"
+        ]
+    },
+    "ansible.python.interpreterPath": "/bin/python"
+}

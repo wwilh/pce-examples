@@ -1,0 +1,32 @@
+---
+# playbook_mongodb.yml (Ubuntu)
+- hosts: mongodb
+  become: true
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install MongoDB
+      apt:
+        name: mongodb
+        state: present
+
+    - name: Configure MongoDB to listen on all interfaces (adjust as needed)
+      lineinfile:
+        path: /etc/mongod.conf
+        regexp: '^#?bindIp: 127.0.0.1'
+        line: 'bindIp: 0.0.0.0'
+      notify: restart mongodb
+
+    - name: Start and enable MongoDB service
+      service:
+        name: mongod
+        state: started
+        enabled: yes
+
+  handlers:
+    - name: restart mongodb
+      service:
+        name: mongod
+        state: restarted

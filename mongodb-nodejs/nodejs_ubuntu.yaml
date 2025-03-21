@@ -1,0 +1,70 @@
+---
+# playbook_nodejs.yml (Ubuntu)
+- hosts: nodejs
+  become: true
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Node.js and npm
+      apt:
+        name:
+          - nodejs
+          - npm
+        state: present
+
+    - name: Create app directory
+      file:
+        path: /opt/myapp
+        state: directory
+
+    - name: Copy Node.js app files (replace with your app's files)
+      copy:
+        src: ./myapp/  # Replace with the path to your app files on the Ansible controller
+        dest: /opt/myapp/
+
+    - name: Install Node.js dependencies
+      npm:
+        path: /opt/myapp/
+
+    - name: Install PM2 globally
+      npm:
+        name: pm2
+        global: yes
+
+    - name: Start Node.js app with PM2 (replace app.js with your entry point)
+      command: pm2 start /opt/myapp/app.js
+      register: pm2_start
+      changed_when: pm2_start.rc != 0
+
+    - name: Save PM2 process list
+      command: pm2 save
+
+    - name: Enable PM2 startup on boot
+      command: pm2 startup systemd
+      register: pm2_startup
+      changed_when: pm2_startup.rc != 0
+
+    - name: ensure pm2 is running
+      systemd:
+        name: pm2-root
+        state: started
+        enabled: yes
+
+    - name: Open firewall for Node.js app (adjust port as needed)
+      ufw:
+        rule: allow
+        port: '3000' #Replace with your node app port.
+        proto: tcp
+        state: enabled
+
+    - name: Enable UFW
+      ufw:
+        state: enabled
+
+    - name: Ensure UFW is running
+      service:
+        name: ufw
+        state: started
+        enabled: yes
