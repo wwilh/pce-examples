@@ -1,0 +1,61 @@
+# playbook_db.yml (Morpheus Integration)
+---
+- hosts: db_server
+  become: true
+  tasks:
+    - name: Install MariaDB server
+      dnf:
+        name: mariadb-server
+        state: present
+
+    - name: Start and enable MariaDB service
+      service:
+        name: mariadb
+        state: started
+        enabled: true
+
+    - name: Secure MariaDB installation
+      mysql_secure_installation:
+        state: present
+        remove_anonymous_users: yes
+        disallow_remote_root: yes
+        remove_test_db: yes
+        reload_privileges: yes
+        root_password: "{{ db_root_password }}" # Morpheus variable
+
+    - name: Create WordPress database and user
+      mysql_db:
+        name: wordpressdb
+        state: present
+        login_user: root
+        login_password: "{{ db_root_password }}" # Morpheus variable
+        login_host: localhost
+        priv: "wordpressuser.*:ALL"
+        encoding: utf8mb4
+        collation: utf8mb4_general_ci
+      register: db_result
+
+    - name: Create WordPress user
+      mysql_user:
+        name: wordpressuser
+        password: "{{ db_user_password }}" # Morpheus variable
+        priv: "wordpressdb.*:ALL"
+        state: present
+        login_user: root
+        login_password: "{{ db_root_password }}" # Morpheus variable
+        login_host: localhost
+      when: db_result.changed
+
+    - name: Allow MariaDB through firewall
+      firewalld:
+        service: mysql
+        permanent: true
+        state: enabled
+      notify:
+        - Reload firewalld
+
+  handlers:
+    - name: Reload firewalld
+      service:
+        name: firewalld
+        state: reloaded
