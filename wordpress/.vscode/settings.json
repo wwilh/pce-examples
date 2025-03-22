@@ -1,9 +1,0 @@
-{
-    "yaml.schemas": {
-        "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/playbook": [
-            "file:///home/bwilh/pce/pce-examples/wordpress/install_mariadb.yml",
-            "file:///home/bwilh/pce/pce-examples/wordpress/install_wordpress.yml"
-        ]
-    },
-    "ansible.python.interpreterPath": "/bin/python"
-}
