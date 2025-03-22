@@ -1,4 +1,12 @@
 # playbook_wordpress.yml (Morpheus Integration)
+#
+# In Morpheus, create 3 cyber secrets
+#   Secret/db_user_password
+#   secret/db_root_password
+#   Secret/db_server_ip
+# When you create the catalog item, add a password input for each of these
+# and then use the secrets as defaults. Users can create their own secrets
+# if they wish and then enter them at the command line.
 ---
 - hosts: web_server
   become: true
