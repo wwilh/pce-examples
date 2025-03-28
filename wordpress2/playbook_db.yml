@@ -24,7 +24,7 @@
     - name: Set MariaDB root password
       community.mysql.mysql_user:
         name: root
-        password: "{{ input.db_root_password }}"
+        password: "{{ customOptions.db_root_password }}"
         host: "{{ item }}"
         state: present
       loop:
@@ -61,7 +61,7 @@
         name: wordpressdb
         state: present
         login_user: root
-        login_password: "{{ input.db_root_password }}"
+        login_password: "{{ customOptions.db_root_password }}"
         login_host: localhost
         priv: "wordpressuser.*:ALL"
         encoding: utf8mb4
@@ -71,11 +71,11 @@
     - name: Create WordPress user
       community.mysql.mysql_user:
         name: wordpressuser
-        password: "{{ input.db_user_password }}"
+        password: "{{ customOptions.db_user_password }}"
         priv: "wordpressdb.*:ALL"
         state: present
         login_user: root
-        login_password: "{{ input.db_root_password }}"
+        login_password: "{{ customOptions.db_root_password }}"
         login_host: localhost
       when: db_result.changed
 
