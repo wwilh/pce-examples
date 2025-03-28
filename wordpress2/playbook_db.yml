@@ -24,7 +24,7 @@
     - name: Set MariaDB root password
       community.mysql.mysql_user:
         name: root
-        password: "{{ customOptions.db_root_password }}"
+        password: "{{ morpheus['customOptions']['db_root_password'] }}"
         host: "{{ item }}"
         state: present
       loop:
@@ -61,7 +61,7 @@
         name: wordpressdb
         state: present
         login_user: root
-        login_password: "{{ customOptions.db_root_password }}"
+        login_password: "{{ morpheus['customOptions']['db_root_password'] }}"
         login_host: localhost
         priv: "wordpressuser.*:ALL"
         encoding: utf8mb4

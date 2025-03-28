@@ -72,7 +72,7 @@
       loop:
         - { regexp: "database_name_here", replace: "wordpressdb" }
         - { regexp: "username_here", replace: "wordpressuser" }
-        - { regexp: "password_here", replace: "{{ customOptions.db_root_password }}" } # Morpheus variable
+        - { regexp: "password_here", replace: "{{ morpheus['customOptions']['db_root_password'] }}" } # Morpheus variable
         - { regexp: "localhost", replace: "{{ server.internalIp }}" } # Morpheus Variable
 
     - name: Set ownership and permissions
