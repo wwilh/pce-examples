@@ -12,6 +12,11 @@
   tasks:
     - name: Install MariaDB server
       dnf:
+        name: mysqlclient
+        state: present
+
+    - name: Install MariaDB server
+      dnf:
         name: mariadb-server
         state: present
 
