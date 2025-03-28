@@ -22,21 +22,47 @@
         state: started
         enabled: true
 
-    - name: Secure MariaDB installation
-      mysql_secure_installation:
+    - name: Set MariaDB root password
+      community.mysql.mysql_user:
+        name: root
+        password: "{{ db_root_password }}"
+        host: "{{ item }}"
         state: present
-        remove_anonymous_users: yes
-        disallow_remote_root: yes
-        remove_test_db: yes
-        reload_privileges: yes
-        root_password: "{{ db_root_password }}" # Morpheus variable
+      loop:
+        - localhost
+        - 127.0.0.1
+
+    - name: Remove anonymous users
+      community.mysql.mysql_user:
+        name: ''
+        state: absent
+      loop:
+        - localhost
+        - '%'
+
+    - name: Disallow remote root login
+      community.mysql.mysql_user:
+        name: root
+        host: '%'
+        state: absent
+
+    - name: Remove test database
+      community.mysql.mysql_db:
+        name: test
+        state: absent
+      register: test_db_removal
+
+    - name: Flush privileges
+      community.mysql.mysql_query:
+        query: FLUSH PRIVILEGES;
+      when: test_db_removal.changed
 
     - name: Create WordPress database and user
-      mysql_db:
+      community.mysql.mysql_db:
         name: wordpressdb
         state: present
         login_user: root
-        login_password: "{{ db_root_password }}" # Morpheus variable
+        login_password: "{{ db_root_password }}"
         login_host: localhost
         priv: "wordpressuser.*:ALL"
         encoding: utf8mb4
@@ -44,13 +70,13 @@
       register: db_result
 
     - name: Create WordPress user
-      mysql_user:
+      community.mysql.mysql_user:
         name: wordpressuser
-        password: "{{ db_user_password }}" # Morpheus variable
+        password: "{{ db_user_password }}"
         priv: "wordpressdb.*:ALL"
         state: present
         login_user: root
-        login_password: "{{ db_root_password }}" # Morpheus variable
+        login_password: "{{ db_root_password }}"
         login_host: localhost
       when: db_result.changed
 
