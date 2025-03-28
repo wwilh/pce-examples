@@ -3,7 +3,6 @@
 # In Morpheus, create 3 cyber secrets
 #   Secret/db_user_password
 #   secret/db_root_password
-#   Secret/db_server_ip
 # When you create the catalog item, add a password input for each of these
 # and then use the secrets as defaults. Users can create their own secrets
 # if they wish and then enter them at the command line.
@@ -25,7 +24,7 @@
     - name: Set MariaDB root password
       community.mysql.mysql_user:
         name: root
-        password: "{{ db_root_password }}"
+        password: "{{ input.db_root_password }}"
         host: "{{ item }}"
         state: present
       loop:
@@ -62,7 +61,7 @@
         name: wordpressdb
         state: present
         login_user: root
-        login_password: "{{ db_root_password }}"
+        login_password: "{{ input.db_root_password }}"
         login_host: localhost
         priv: "wordpressuser.*:ALL"
         encoding: utf8mb4
@@ -72,11 +71,11 @@
     - name: Create WordPress user
       community.mysql.mysql_user:
         name: wordpressuser
-        password: "{{ db_user_password }}"
+        password: "{{ input.db_user_password }}"
         priv: "wordpressdb.*:ALL"
         state: present
         login_user: root
-        login_password: "{{ db_root_password }}"
+        login_password: "{{ input.db_root_password }}"
         login_host: localhost
       when: db_result.changed
 
