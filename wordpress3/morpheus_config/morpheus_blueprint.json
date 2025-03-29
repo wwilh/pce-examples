@@ -1,0 +1,44 @@
+{
+    "name": "WordPress with MariaDB",
+    "description": "Deploys a WordPress instance with a MariaDB database.",
+    "type": "app",
+    "nodes": [
+      {
+        "name": "db_server",
+        "type": "vm",
+        "instanceType": "small",
+        "layout": "Rocky 9",
+        "ansiblePlaybooks": [
+          {
+            "playbook": "../db_server/playbook.yml"
+          }
+        ]
+      },
+      {
+        "name": "web_server",
+        "type": "vm",
+        "instanceType": "small",
+        "layout": "Rocky 9",
+        "ansiblePlaybooks": [
+          {
+            "playbook": "../web_server/playbook.yml"
+          }
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "name": "dbRootPassword",
+        "label": "MariaDB Root Password",
+        "type": "password",
+        "required": true
+      },
+      {
+        "name": "dbUserPassword",
+        "label": "MariaDB User Password",
+        "type": "password",
+        "required": true
+      }
+    ]
+  }
+  

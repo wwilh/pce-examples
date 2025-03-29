@@ -1,0 +1,98 @@
+- hosts: db_server
+  become: true
+  vars_files:
+    - ../vars/main.yml
+  tasks:
+    - name: Add MariaDB repository
+      dnf:
+        name: "https://mirrors.mariadb.org/repo/{{ mariadb_version }}/rhel/9/x86_64/mariadb.repo"
+        state: present
+
+    - name: Install EPEL repository
+      dnf:
+        name: epel-release
+        state: present
+
+    - name: Install python3-PyMySQL
+      dnf:
+        name: python3-PyMySQL
+        state: present
+
+    - name: Install MariaDB server
+      dnf:
+        name: mariadb-server
+        state: present
+
+    - name: Start and enable MariaDB service
+      service:
+        name: mariadb
+        state: started
+        enabled: true
+
+    - name: Set MariaDB root password
+      community.mysql.mysql_user:
+        name: root
+        password: "{{ lookup('morpheus_cypher', customOptions.dbRootPassword) }}"
+        host: "{{ item }}"
+        state: present
+      loop:
+        - localhost
+        - 127.0.0.1
+
+    - name: Remove anonymous users
+      community.mysql.mysql_user:
+        name: ''
+        state: absent
+      loop:
+        - localhost
+        - '%'
+
+    - name: Disallow remote root login
+      community.mysql.mysql_user:
+        name: root
+        host: '%'
+        state: absent
+ 
+    - name: Remove test database
+      community.mysql.mysql_db:
+        name: test
+        state: absent
+      register: test_db_removal
+ 
+    - name: Flush privileges
+      community.mysql.mysql_query:
+        query: FLUSH PRIVILEGES;
+      when: test_db_removal.changed
+ 
+    - name: Create WordPress database
+      community.mysql.mysql_db:
+        name: "{{ wordpress_db_name }}"
+        state: present
+        login_user: root
+        login_password: "{{ lookup('morpheus_cypher', customOptions.dbRootPassword) }}"
+        login_host: localhost
+        encoding: utf8mb4
+        collation: utf8mb4_general_ci
+
+    - name: Create WordPress user
+      community.mysql.mysql_user:
+        name: "{{ wordpress_db_user }}"
+        password: "{{ lookup('morpheus_cypher', customOptions.dbUserPassword) }}"
+        priv: "{{ wordpress_db_name }}.*:ALL"
+        state: present
+        login_user: root
+        login_password: "{{ lookup('morpheus_cypher', customOptions.dbRootPassword) }}"
+        login_host: localhost
+ 
+    - name: Allow MariaDB through firewall
+      firewalld:
+        service: mysql
+        permanent: true
+        state: enabled
+      notify:
+        - Reload firewalld
+  handlers:
+    - name: Reload firewalld
+      service:
+        name: firewalld
+        state: reloaded
