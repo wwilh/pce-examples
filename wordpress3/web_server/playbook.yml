@@ -1,4 +1,4 @@
-- hosts: web_server
+- hosts: web_server.localdomain
   become: true
   vars_files:
     - ../vars/main.yml
