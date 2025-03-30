@@ -1,0 +1,14 @@
+# Ansible-specific ignores
+*.retry  # Ansible retry files
+# Node.js-specific ignores
+node_modules/  # Node.js dependencies
+npm-debug.log  # npm debug logs
+*.log  # General log files
+# Editor and OS files
+.DS_Store  # macOS
+*.swp      # Vim swap files
+*.swo
+.vscode/   # VS Code settings
+# Temporary files
+*.tmp
+*.bak

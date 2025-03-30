@@ -1,0 +1,6 @@
+---
+# Node.js and MongoDB shared variables
+node_version: "20"              # Node.js version (LTS as of March 2025)
+app_dir: "/opt/nodejs_app"      # Directory for the Node.js application
+mongodb_db: "nodejs_db"         # MongoDB database name
+mongodb_user: "nodejs_user"     # MongoDB application user

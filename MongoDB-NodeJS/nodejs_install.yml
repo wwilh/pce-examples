@@ -1,0 +1,78 @@
+---
+- name: Install Node.js and dependencies on Rocky 9
+  hosts: nodejs_vm
+  become: yes
+  vars:
+    mongodb_host: "{{ hostvars['mongodb_vm']['ansible_host'] }}"
+    mongodb_password: "{{ lookup('cypher', 'secret/mongodb_password') }}"
+  tasks:
+    - name: Install EPEL repository for additional packages
+      dnf:
+        name: epel-release
+        state: present
+
+    - name: Add Node.js repository
+      shell: |
+        curl -fsSL https://rpm.nodesource.com/setup_{{ node_version }}.x | bash -
+      args:
+        creates: /etc/yum.repos.d/nodesource-el9.repo
+
+    - name: Install Node.js and npm
+      dnf:
+        name:
+          - nodejs
+          - npm
+        state: present
+
+    - name: Create application directory
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Create a simple Node.js app
+      copy:
+        dest: "{{ app_dir }}/index.js"
+        content: |
+          const MongoClient = require('mongodb').MongoClient;
+          const url = 'mongodb://{{ mongodb_user }}:{{ mongodb_password }}@{{ mongodb_host }}:27017';
+          const dbName = '{{ mongodb_db }}';
+
+          MongoClient.connect(url, function(err, client) {
+            if (err) throw err;
+            console.log("Connected to MongoDB!");
+            const db = client.db(dbName);
+            db.collection('test').insertOne({ message: "Hello World" }, function(err, res) {
+              if (err) throw err;
+              console.log("Inserted document!");
+              client.close();
+            });
+          });
+
+          const http = require('http');
+          const hostname = '0.0.0.0';
+          const port = 3000;
+          const server = http.createServer((req, res) => {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'text/plain');
+            res.end('Hello World from Node.js!\n');
+          });
+          server.listen(port, hostname, () => {
+            console.log(`Server running at http://${hostname}:${port}/`);
+          });
+        mode: '0644'
+
+    - name: Install MongoDB Node.js driver
+      npm:
+        name: mongodb
+        path: "{{ app_dir }}"
+        state: present
+
+    - name: Start Node.js app with nohup
+      command: "nohup node {{ app_dir }}/index.js &"
+      args:
+        chdir: "{{ app_dir }}"
+      async: 10
+      poll: 0

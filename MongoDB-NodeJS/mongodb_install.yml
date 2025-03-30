@@ -1,0 +1,61 @@
+---
+- name: Install MongoDB and dependencies on Rocky 9
+  hosts: mongodb_vm
+  become: yes
+  vars:
+    mongodb_password: "{{ lookup('cypher', 'secret/mongodb_password') }}"
+  tasks:
+    - name: Add MongoDB repository
+      copy:
+        dest: /etc/yum.repos.d/mongodb-org-7.repo
+        content: |
+          [mongodb-org-7.0]
+          name=MongoDB Repository
+          baseurl=https://repo.mongodb.org/yum/redhat/9/mongodb-org/7.0/x86_64/
+          gpgcheck=1
+          enabled=1
+          gpgkey=https://www.mongodb.org/static/pgp/server-7.0.asc
+        mode: '0644'
+
+    - name: Install MongoDB
+      dnf:
+        name:
+          - mongodb-org
+        state: present
+
+    - name: Start and enable MongoDB
+      service:
+        name: mongod
+        state: started
+        enabled: yes
+
+    - name: Configure MongoDB to listen on all interfaces
+      lineinfile:
+        path: /etc/mongod.conf
+        regexp: '^  bindIp:'
+        line: '  bindIp: 0.0.0.0'
+      notify: Restart MongoDB
+
+    - name: Create MongoDB admin user
+      mongodb_user:
+        database: admin
+        name: admin
+        password: "{{ lookup('cypher', 'secret/mongodb_admin_password') }}"
+        roles: "root"
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Create MongoDB application user
+      mongodb_user:
+        database: "{{ mongodb_db }}"
+        name: "{{ mongodb_user }}"
+        password: "{{ mongodb_password }}"
+        roles: "readWrite"
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"
+
+  handlers:
+    - name: Restart MongoDB
+      service:
+        name: mongod
+        state: restarted
