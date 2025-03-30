@@ -5,7 +5,8 @@
   tasks:
     - name: Add MariaDB repository
       dnf:
-        name: "https://mirror.mariadb.org/repo/{{ mariadb_version }}/rhel/9/x86_64/mariadb.repo"
+ #       name: "https://mirror.mariadb.org/repo/{{ mariadb_version }}/rhel/9/x86_64/mariadb.repo"
+        name: "https://mirror.mariadb.org/{{ mariadb_version }}/yum/rockylinux9-amd64/"
         state: present
 
     - name: Install EPEL repository
