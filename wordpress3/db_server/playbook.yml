@@ -5,7 +5,7 @@
   tasks:
     - name: Add MariaDB repository
       dnf:
-        name: "https://mirrors.mariadb.org/repo/{{ mariadb_version }}/rhel/9/x86_64/mariadb.repo"
+        name: "https://mirror.mariadb.org/repo/{{ mariadb_version }}/rhel/9/x86_64/mariadb.repo"
         state: present
 
     - name: Install EPEL repository
