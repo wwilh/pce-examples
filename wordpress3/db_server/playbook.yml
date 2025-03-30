@@ -32,7 +32,7 @@
     - name: Set MariaDB root password
       community.mysql.mysql_user:
         name: root
-        password: "{{ lookup('morpheus_cypher', customOptions.dbRootPassword) }}"
+        password: "{{ lookup('morpheus_cypher', customOptions.db_Root_Password) }}"
         host: "{{ item }}"
         state: present
       loop:
@@ -69,7 +69,7 @@
         name: "{{ wordpress_db_name }}"
         state: present
         login_user: root
-        login_password: "{{ lookup('morpheus_cypher', customOptions.dbRootPassword) }}"
+        login_password: "{{ lookup('morpheus_cypher', customOptions.db_Root_Password) }}"
         login_host: localhost
         encoding: utf8mb4
         collation: utf8mb4_general_ci
@@ -77,11 +77,11 @@
     - name: Create WordPress user
       community.mysql.mysql_user:
         name: "{{ wordpress_db_user }}"
-        password: "{{ lookup('morpheus_cypher', customOptions.dbUserPassword) }}"
+        password: "{{ lookup('morpheus_cypher', customOptions.db_User_Password) }}"
         priv: "{{ wordpress_db_name }}.*:ALL"
         state: present
         login_user: root
-        login_password: "{{ lookup('morpheus_cypher', customOptions.dbRootPassword) }}"
+        login_password: "{{ lookup('morpheus_cypher', customOptions.db_Root_Password) }}"
         login_host: localhost
  
     - name: Allow MariaDB through firewall
