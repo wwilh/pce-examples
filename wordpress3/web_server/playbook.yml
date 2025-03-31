@@ -42,7 +42,8 @@
       loop:
         - { regexp: "database_name_here", replace: "{{ wordpress_db_name }}" }
         - { regexp: "username_here", replace: "{{ wordpress_db_user }}" }
-        - { regexp: "password_here", replace: "{{ lookup('morpheus_cypher', customOptions.db_User_Password) }}" }
+#        - { regexp: "password_here", replace: "{{ lookup('morpheus_cypher', customOptions.db_User_Password) }}" }
+        - { regexp: "password_here", replace: "{{ lookup('cypher', secret=password/db_User_Password) }}" }
         - { regexp: "localhost", replace: "{{ hostvars[groups['db_server'][0]].ansible_host }}" }
       notify:
         - restart httpd
