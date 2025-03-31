@@ -33,6 +33,14 @@
         state: started
         enabled: true
 
+    - name: Wait for MariaDB socket to be available
+      ansible.builtin.wait_for:
+        path: "/var/lib/mysql/mysql.sock"  # Updated socket path
+        state: present
+        timeout: 30
+      retries: 5
+      delay: 2
+
     - name: Set MariaDB root password
       community.mysql.mysql_user:
         name: root
@@ -40,8 +48,8 @@
         host: "{{ item }}"
         state: present
         login_user: "root"
-        login_password: "{{ lookup('cypher', 'secret=secret/db_root_password') }}"
-        login_unix_socket: "/var/run/mysqld/mysqld.sock"
+        login_password: # "{{ lookup('cypher', 'secret=secret/db_root_password') }}"
+        login_unix_socket: "/var/lib/mysql/mysql.sock"
         update_password: always
         plugin: "mysql_native_password"
       loop:
