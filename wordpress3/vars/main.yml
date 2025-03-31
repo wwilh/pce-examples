@@ -1,4 +1,4 @@
-mariadb_version: "10.11.11"
+mariadb_version: "10.11"
 wordpress_version: "latest"
 wordpress_db_name: "wordpressdb"
 wordpress_db_user: "wordpressuser"

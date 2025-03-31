@@ -4,28 +4,37 @@
     - ../vars/main.yml
   tasks:
     - name: Add MariaDB repository
-      dnf:
- #       name: "https://mirror.mariadb.org/repo/{{ mariadb_version }}/rhel/9/x86_64/mariadb.repo"
-        name: "https://mirror.mariadb.org/{{ mariadb_version }}/yum/rockylinux9-amd64/"
+#     dnf:
+#       name: "https://mirror.mariadb.org/repo/{{ mariadb_version }}/rhel/9/x86_64/mariadb.repo"
+#       name: "https://mirror.mariadb.org/{{ mariadb_version }}/yum/rockylinux9-amd64/"
+#       state: present
+
+    - name: Add MariaDB repository
+      ansible.builtin.yum_repository:
+        name: mariadb
+        description: MariaDB {{ mariadb_version }} Repository
+        baseurl: "https://mirror.mariadb.org/yum/{{ mariadb_version }}/rockylinux9-amd64"
+        gpgcheck: yes
+        gpgkey: "https://mirror.mariadb.org/yum/RPM-GPG-KEY-MariaDB"
         state: present
 
     - name: Install EPEL repository
-      dnf:
+      ansible.builtin.dnf:
         name: epel-release
         state: present
 
     - name: Install python3-PyMySQL
-      dnf:
+      ansible.builtin.dnf:
         name: python3-PyMySQL
         state: present
 
     - name: Install MariaDB server
-      dnf:
+      ansible.builtin.dnf:
         name: mariadb-server
         state: present
 
     - name: Start and enable MariaDB service
-      service:
+      ansible.builtin.service:
         name: mariadb
         state: started
         enabled: true
@@ -92,6 +101,11 @@
         state: enabled
       notify:
         - Reload firewalld
+
+    - name: Debug - Confirm execution
+      ansible.builtin.debug:
+        msg: "DEBUG: MariaDB playbook ran on {{ inventory_hostname }}"
+
   handlers:
     - name: Reload firewalld
       service:
