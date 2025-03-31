@@ -52,9 +52,6 @@
         login_unix_socket: "/var/lib/mysql/mysql.sock"
         update_password: always
         plugin: "mysql_native_password"
-#      loop:
-#        - localhost
-#        - 127.0.0.1
 
     - name: Set MariaDB root password for 127.0.0.1
       community.mysql.mysql_user:
@@ -98,7 +95,6 @@
         name: "{{ wordpress_db_name }}"
         state: present
         login_user: root
-#        login_password: "{{ lookup('morpheus_cypher', customOptions.db_root_password) }}"
         login_password: "{{ lookup('cypher', 'secret=secret/db_root_password') }}"
         login_host: localhost
         encoding: utf8mb4
@@ -107,12 +103,10 @@
     - name: Create WordPress DB user
       community.mysql.mysql_user:
         name: "{{ wordpress_db_user }}"
-#        password: "{{ lookup('morpheus_cypher', customOptions.db_user_password) }}"
         password: "{{ lookup('cypher', 'secret=secret/db_user_password') }}"
         priv: "{{ wordpress_db_name }}.*:ALL"
         state: present
         login_user: root
-#        login_password: "{{ lookup('morpheus_cypher', customOptions.db_root_password) }}"
         login_password: "{{ lookup('cypher', 'secret=secret/db_root_password') }}"
         login_host: localhost
  

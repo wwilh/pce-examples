@@ -1,44 +1,362 @@
 {
-    "name": "WordPress with MariaDB",
-    "description": "Deploys a WordPress instance with a MariaDB database.",
-    "type": "app",
-    "nodes": [
-      {
-        "name": "db_server",
-        "type": "vm",
-        "instanceType": "small",
-        "layout": "Rocky 9",
-        "ansiblePlaybooks": [
-          {
-            "playbook": "../db_server/playbook.yml"
-          }
+  "image": "https://7csaduh14vi3xfqbce5ft14cea-mp.privatecloud.greenlake.hpe.com/storage/logos/uploads/AppTemplate/3/templateImage/WordPress-logotype-standard-sm_original.png",
+  "tiers": {
+    "App": {
+      "linkedTiers": [
+        "Database"
+      ],
+      "tierIndex": 2,
+      "tier": {
+        "bootOrder": 1,
+        "lockedFields": [
+          "bootOrder"
         ]
       },
-      {
-        "name": "web_server",
-        "type": "vm",
-        "instanceType": "small",
-        "layout": "Rocky 9",
-        "ansiblePlaybooks": [
-          {
-            "playbook": "../web_server/playbook.yml"
+      "instances": [
+        {
+          "instance": {
+            "name": "Wordpress-${sequence}",
+            "type": "wordpress"
+          },
+          "environments": {
+            "Dev": {
+              "groups": {
+                "ansible-grp": {
+                  "clouds": {
+                    "HPE GreenLake VMaaS Cloud": {
+                      "cloud": {
+                        "id": 1
+                      },
+                      "userRemovedFields": [
+                        "backup.backupJob.syntheticFullSchedule",
+                        "instance.backup"
+                      ],
+                      "backup": {
+                        "backupJob": {
+                          "syntheticFullEnabled": false,
+                          "retentionCount": 15,
+                          "syntheticFullSchedule": null,
+                          "scheduleTypeId": 1
+                        },
+                        "createBackup": false,
+                        "enabled": false
+                      },
+                      "instance": {
+                        "layout": {
+                          "provisionTypeCode": "vmware",
+                          "code": "b1f88ef9-318a-4694-9384-cedc83a70049",
+                          "instanceVersion": "1.0",
+                          "name": "Wordpress Layout",
+                          "id": 2013
+                        },
+                        "configEnabled": true,
+                        "configGroup": "web_server",
+                        "name": "web_server",
+                        "allowExisting": false,
+                        "type": "wordpress",
+                        "userGroup": {
+                          "id": ""
+                        }
+                      },
+                      "networkInterfaces": [
+                        {
+                          "ipMode": "",
+                          "primaryInterface": true,
+                          "showNetworkPoolLabel": true,
+                          "showNetworkDhcpLabel": false,
+                          "network": {
+                            "idName": "CI-network",
+                            "pool": {
+                              "name": "CI-pool",
+                              "id": 3
+                            },
+                            "id": "network-48",
+                            "hasPool": true
+                          },
+                          "networkInterfaceTypeId": 22,
+                          "networkInterfaceTypeIdName": "VMXNET 3"
+                        }
+                      ],
+                      "volumes": [
+                        {
+                          "maxIOPS": null,
+                          "displayOrder": 0,
+                          "unitNumber": "0",
+                          "minStorage": 5242880000,
+                          "configurableIOPS": false,
+                          "uuid": "2e2ade15-7ad8-4957-bd1d-79c0480e77ca",
+                          "controllerMountPoint": "1194:0:10:0",
+                          "internalId": "[vlabs-pce01-B2b.b-Vol2] Morpheus Rocky 9 20240604/Morpheus Rocky 9 20240604.vmdk",
+                          "id": 474,
+                          "datastoreId": "autoCluster",
+                          "maxStorage": 10737418240,
+                          "volumeCustomizable": true,
+                          "readonlyName": false,
+                          "controllerId": 1194,
+                          "externalId": "2000",
+                          "virtualImageId": 2310,
+                          "vId": 2310,
+                          "size": 10,
+                          "name": "root",
+                          "planResizable": true,
+                          "rootVolume": true,
+                          "storageType": 1,
+                          "typeId": 1,
+                          "resizeable": true,
+                          "uniqueId": null
+                        }
+                      ],
+                      "storageControllers": [
+                        {
+                          "editable": false,
+                          "typeName": "IDE",
+                          "maxDevices": 2,
+                          "displayOrder": 0,
+                          "active": true,
+                          "unitNumber": null,
+                          "reservedUnitNumber": -1,
+                          "busNumber": "1",
+                          "removable": false,
+                          "name": "IDE 1",
+                          "typeId": 4,
+                          "id": 268,
+                          "category": "ide"
+                        },
+                        {
+                          "editable": false,
+                          "typeName": "SCSI LSI Logic Parallel",
+                          "maxDevices": 16,
+                          "displayOrder": 1,
+                          "active": true,
+                          "unitNumber": null,
+                          "reservedUnitNumber": 7,
+                          "busNumber": "0",
+                          "removable": false,
+                          "name": "SCSI 0",
+                          "typeId": 10,
+                          "id": 262,
+                          "category": "scsi"
+                        },
+                        {
+                          "editable": false,
+                          "typeName": "IDE",
+                          "maxDevices": 2,
+                          "displayOrder": 2,
+                          "active": true,
+                          "unitNumber": null,
+                          "reservedUnitNumber": -1,
+                          "busNumber": "0",
+                          "removable": false,
+                          "name": "IDE 0",
+                          "typeId": 4,
+                          "id": 265,
+                          "category": "ide"
+                        }
+                      ],
+                      "config": {
+                        "customOptions": {
+                          "db_root_password": "************",
+                          "db_user_password": "************"
+                        },
+                        "resourcePoolId": "pool-4",
+                        "createUser": true,
+                        "vmwareFolderId": "group-v3004",
+                        "noAgent": false
+                      },
+                      "plan": {
+                        "code": "G2i-small-5fae16",
+                        "id": 820
+                      },
+                      "group": {
+                        "id": 6
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
+        }
+      ]
+    },
+    "Database": {
+      "tierIndex": 1,
+      "tier": {
+        "bootOrder": 0,
+        "lockedFields": [
+          "bootOrder"
         ]
-      }
-    ],
-    "inputs": [
-      {
-        "name": "dbRootPassword",
-        "label": "MariaDB Root Password",
-        "type": "password",
-        "required": true
       },
-      {
-        "name": "dbUserPassword",
-        "label": "MariaDB User Password",
-        "type": "password",
-        "required": true
-      }
-    ]
-  }
-  
+      "instances": [
+        {
+          "instance": {
+            "name": "MariaDB-${sequence}",
+            "type": "MARIADB"
+          },
+          "environments": {
+            "Dev": {
+              "groups": {
+                "ansible-grp": {
+                  "clouds": {
+                    "HPE GreenLake VMaaS Cloud": {
+                      "cloud": {
+                        "id": 1
+                      },
+                      "userRemovedFields": [
+                        "backup.backupJob.syntheticFullSchedule",
+                        "instance.backup"
+                      ],
+                      "backup": {
+                        "backupJob": {
+                          "syntheticFullEnabled": false,
+                          "retentionCount": 15,
+                          "syntheticFullSchedule": null,
+                          "scheduleTypeId": 1
+                        },
+                        "createBackup": false,
+                        "enabled": false
+                      },
+                      "instance": {
+                        "layout": {
+                          "provisionTypeCode": "vmware",
+                          "code": "8cb5ccb2-952a-4d2d-b12d-98d0bb9c48e0",
+                          "instanceVersion": "1.0",
+                          "name": "MariaDB-Layout",
+                          "id": 2010
+                        },
+                        "configEnabled": true,
+                        "configGroup": "db_server",
+                        "name": "db_server",
+                        "allowExisting": false,
+                        "type": "MARIADB",
+                        "userGroup": {
+                          "id": ""
+                        }
+                      },
+                      "networkInterfaces": [
+                        {
+                          "ipMode": "",
+                          "primaryInterface": true,
+                          "showNetworkPoolLabel": true,
+                          "showNetworkDhcpLabel": false,
+                          "network": {
+                            "idName": "CI-network",
+                            "pool": {
+                              "name": "CI-pool",
+                              "id": 3
+                            },
+                            "id": "network-48",
+                            "hasPool": true
+                          },
+                          "networkInterfaceTypeId": 22,
+                          "networkInterfaceTypeIdName": "VMXNET 3"
+                        }
+                      ],
+                      "volumes": [
+                        {
+                          "maxIOPS": null,
+                          "displayOrder": 0,
+                          "unitNumber": "0",
+                          "minStorage": 5242880000,
+                          "configurableIOPS": false,
+                          "uuid": "2e2ade15-7ad8-4957-bd1d-79c0480e77ca",
+                          "controllerMountPoint": "1194:0:10:0",
+                          "internalId": "[vlabs-pce01-B2b.b-Vol2] Morpheus Rocky 9 20240604/Morpheus Rocky 9 20240604.vmdk",
+                          "id": 474,
+                          "datastoreId": "autoCluster",
+                          "maxStorage": 10737418240,
+                          "volumeCustomizable": true,
+                          "readonlyName": false,
+                          "controllerId": 1194,
+                          "externalId": "2000",
+                          "virtualImageId": 2310,
+                          "vId": 2310,
+                          "size": 10,
+                          "name": "root",
+                          "planResizable": true,
+                          "rootVolume": true,
+                          "storageType": 1,
+                          "typeId": 1,
+                          "resizeable": true,
+                          "uniqueId": null
+                        }
+                      ],
+                      "storageControllers": [
+                        {
+                          "editable": false,
+                          "typeName": "IDE",
+                          "maxDevices": 2,
+                          "displayOrder": 0,
+                          "active": true,
+                          "unitNumber": null,
+                          "reservedUnitNumber": -1,
+                          "busNumber": "0",
+                          "removable": false,
+                          "name": "IDE 0",
+                          "typeId": 4,
+                          "id": 265,
+                          "category": "ide"
+                        },
+                        {
+                          "editable": false,
+                          "typeName": "SCSI LSI Logic Parallel",
+                          "maxDevices": 16,
+                          "displayOrder": 1,
+                          "active": true,
+                          "unitNumber": null,
+                          "reservedUnitNumber": 7,
+                          "busNumber": "0",
+                          "removable": false,
+                          "name": "SCSI 0",
+                          "typeId": 10,
+                          "id": 262,
+                          "category": "scsi"
+                        },
+                        {
+                          "editable": false,
+                          "typeName": "IDE",
+                          "maxDevices": 2,
+                          "displayOrder": 2,
+                          "active": true,
+                          "unitNumber": null,
+                          "reservedUnitNumber": -1,
+                          "busNumber": "1",
+                          "removable": false,
+                          "name": "IDE 1",
+                          "typeId": 4,
+                          "id": 268,
+                          "category": "ide"
+                        }
+                      ],
+                      "config": {
+                        "customOptions": {
+                          "db_root_password": "************",
+                          "db_user_password": "************"
+                        },
+                        "resourcePoolId": "pool-4",
+                        "createUser": true,
+                        "vmwareFolderId": "group-v3004",
+                        "noAgent": false
+                      },
+                      "plan": {
+                        "code": "G2i-small-5fae16",
+                        "id": 820
+                      },
+                      "group": {
+                        "id": 6
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "name": "2-Tier Wordpress",
+  "templateImage": "C:\\fakepath\\WordPress-logotype-standard-sm.png",
+  "type": "morpheus",
+  "category": "Web"
+}
