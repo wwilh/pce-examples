@@ -2,8 +2,8 @@
   become: true
   vars_files:
     - ../vars/main.yml
-    - mariadb_root_password: "{{ lookup('cypher', 'secret/mysql_root_password') }}"
-    - wordpress_db_password: "{{ lookup('cypher', 'secret/wp_db_password') }}"
+    - mariadb_root_password: "{{ lookup('cypher', 'secret=password/db_root_password') }}"
+    - wordpress_db_password: "{{ lookup('cypher', 'secret=password/db_user_password') }}"
   tasks:
     - name: Debug - Test Cypher password lookups
       ansible.builtin.debug:
