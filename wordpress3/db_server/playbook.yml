@@ -36,10 +36,13 @@
     - name: Set MariaDB root password
       community.mysql.mysql_user:
         name: root
-#        password: "{{ lookup('morpheus_cypher', customOptions.db_root_password) }}"
         password: "{{ lookup('cypher', 'secret=secret/db_root_password') }}"
         host: "{{ item }}"
         state: present
+        login_password: ""
+        login_unix_socket: "/var/run/mysqld/mysqld.sock"
+        update_password: always
+        plugin: "mysql_native_password"
       loop:
         - localhost
         - 127.0.0.1
@@ -99,10 +102,6 @@
         state: enabled
       notify:
         - Reload firewalld
-
-    - name: Debug - Confirm execution
-      ansible.builtin.debug:
-        msg: "DEBUG: MariaDB playbook ran on {{ inventory_hostname }}"
 
   handlers:
     - name: Reload firewalld
