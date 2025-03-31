@@ -12,6 +12,7 @@
           - mariadb_root_password is {{ 'set' if mariadb_root_password is defined and mariadb_root_password != '' else 'unset or empty' }}
           - wordpress_db_password is {{ 'set' if wordpress_db_password is defined and wordpress_db_password != '' else 'unset or empty' }}    - name: Add MariaDB repository
 
+    - name: Add MariaDB repository
       ansible.builtin.yum_repository:
         name: mariadb
         description: MariaDB {{ mariadb_version }} Repository
