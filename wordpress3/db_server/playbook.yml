@@ -41,20 +41,31 @@
       retries: 5
       delay: 2
 
-    - name: Set MariaDB root password
+    - name: Set MariaDB root password for localhost
       community.mysql.mysql_user:
         name: root
         password: "{{ lookup('cypher', 'secret=secret/db_root_password') }}"
-        host: "{{ item }}"
+        host: "localhost"
         state: present
         login_user: "root"
         login_password: # "{{ lookup('cypher', 'secret=secret/db_root_password') }}"
         login_unix_socket: "/var/lib/mysql/mysql.sock"
         update_password: always
         plugin: "mysql_native_password"
-      loop:
-        - localhost
-        - 127.0.0.1
+#      loop:
+#        - localhost
+#        - 127.0.0.1
+
+    - name: Set MariaDB root password for 127.0.0.1
+      community.mysql.mysql_user:
+        name: root
+        password: "{{ lookup('cypher', 'secret=secret/db_root_password') }}"
+        host: "127.0.0.1"
+        state: present
+        login_user: "root"
+        login_password: "{{ lookup('cypher', 'secret=secret/db_root_password') }}"
+        update_password: always
+        plugin: "mysql_native_password"
 
     - name: Remove anonymous users
       community.mysql.mysql_user:
