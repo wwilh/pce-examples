@@ -36,7 +36,8 @@
     - name: Set MariaDB root password
       community.mysql.mysql_user:
         name: root
-        password: "{{ lookup('morpheus_cypher', customOptions.db_Root_Password) }}"
+#        password: "{{ lookup('morpheus_cypher', customOptions.db_Root_Password) }}"
+        password: "{{ lookup('cypher', secret=password/db_Root_Password) }}"
         host: "{{ item }}"
         state: present
       loop:
