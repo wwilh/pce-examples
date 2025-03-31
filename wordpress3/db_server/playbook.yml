@@ -67,11 +67,11 @@
         update_password: always
         plugin: "mysql_native_password"
 
-    - name: Remove anonymous users
-      community.mysql.mysql_user:
-        name: ''
-        host_all: yes
-        state: absent
+#    - name: Remove anonymous users
+#      community.mysql.mysql_user:
+#        name: ''
+#        host_all: yes
+#        state: absent
 #      loop:
 #        - localhost
 #        - '%'
@@ -88,10 +88,10 @@
 #        state: absent
 #      register: test_db_removal
  
-    - name: Flush privileges
-      community.mysql.mysql_query:
-        query: FLUSH PRIVILEGES;
-      when: test_db_removal.changed
+#    - name: Flush privileges
+#      community.mysql.mysql_query:
+#        query: FLUSH PRIVILEGES;
+#      when: test_db_removal.changed
  
     - name: Create WordPress database
       community.mysql.mysql_db:
