@@ -2,8 +2,16 @@
   become: true
   vars_files:
     - ../vars/main.yml
+    - mariadb_root_password: "{{ lookup('cypher', 'secret/mysql_root_password') }}"
+    - wordpress_db_password: "{{ lookup('cypher', 'secret/wp_db_password') }}"
   tasks:
-    - name: Add MariaDB repository
+    - name: Debug - Test Cypher password lookups
+      ansible.builtin.debug:
+        msg: |
+          Cypher lookup test:
+          - mariadb_root_password is {{ 'set' if mariadb_root_password is defined and mariadb_root_password != '' else 'unset or empty' }}
+          - wordpress_db_password is {{ 'set' if wordpress_db_password is defined and wordpress_db_password != '' else 'unset or empty' }}    - name: Add MariaDB repository
+
       ansible.builtin.yum_repository:
         name: mariadb
         description: MariaDB {{ mariadb_version }} Repository
