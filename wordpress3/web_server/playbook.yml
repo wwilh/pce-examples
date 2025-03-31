@@ -4,7 +4,7 @@
     - ../vars/main.yml
   vars:
     wordpress_install_dir: "/var/www/html/wordpress"
-    wordpress_db_host: "{{ hostvars['db_server']['ansible_host'] }}"    # Get the IP of the db_server
+    wordpress_db_host: "{{ hostvars['db_server.localdomain']['ansible_host'] }}"    # Get the IP of the db_server
     wordpress_db_password: "{{ lookup('cypher', 'secret=secret/db_user_password') }}"
     wordpress_db_name: "wordpress_db"
     wordpress_db_user: "wordpress_user"
