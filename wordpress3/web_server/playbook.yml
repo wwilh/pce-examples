@@ -2,6 +2,8 @@
   become: true
   vars_files:
     - ../vars/main.yml
+  vars:
+    wordpress_install_dir: "/var/www/html/wordpress"
   tasks:
     - name: Install required packages
       dnf:
@@ -12,6 +14,18 @@
           - php-json
           - wget
         state: present
+
+    - name: Start and enable httpd service
+      service:
+        name: httpd
+        state: started
+        enabled: true
+
+    - name: Create WordPress installation directory
+      ansible.builtin.file:
+        path: "{{ wordpress_install_dir }}"
+        state: directory
+        mode: '0755'
 
     - name: Download WordPress
       get_url:
@@ -24,35 +38,30 @@
         dest: /var/www/html/
         remote_src: yes
 
-    - name: Copy WordPress configuration
-      copy:
-        src: "{{ item }}"
-        dest: /var/www/html/wordpress/
-        remote_src: yes
-      loop:
-        - wp-config-sample.php
-      notify:
-        - restart httpd
- 
-    - name: Configure wp-config.php
-      replace:
-        path: /var/www/html/wordpress/wp-config.php
-        regexp: "{{ item.regexp }}"
-        replace: "{{ item.replace }}"
-      loop:
-        - { regexp: "database_name_here", replace: "{{ wordpress_db_name }}" }
-        - { regexp: "username_here", replace: "{{ wordpress_db_user }}" }
-#        - { regexp: "password_here", replace: "{{ lookup('morpheus_cypher', customOptions.db_User_Password) }}" }
-        - { regexp: "password_here", replace: "{{ lookup('cypher', 'secret=secret/db_user_password') }}" }
-        - { regexp: "localhost", replace: "{{ hostvars[groups['db_server'][0]].ansible_host }}" }
-      notify:
-        - restart httpd
+    - name: Copy WordPress config file
+      ansible.builtin.template:
+        src: "../templates/wp-config-sample.php.j2"  # Relative path from web_server/
+        dest: "{{ wordpress_install_dir }}/wp-config.php"
+        mode: '0644'
+      notify: Restart Apache
 
-    - name: Start and enable httpd service
-      service:
-        name: httpd
-        state: started
-        enabled: true
+#    - name: Copy WordPress configuration
+#      copy:
+#        src: "{{ item }}"
+#        dest: /var/www/html/wordpress/
+#        remote_src: yes
+#      loop:
+#        - wp-config-sample.php
+#      notify:
+#        - restart httpd
+ 
+#    - name: Configure wp-config.php
+#      replace:
+#        path: /var/www/html/wordpress/wp-config.php
+#        regexp: "{{ item.regexp }}"
+#        replace: "{{ item.replace }}"
+#      notify:
+#        - restart httpd
 
   handlers:
     - name: restart httpd
