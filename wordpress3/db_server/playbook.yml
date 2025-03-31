@@ -70,22 +70,23 @@
     - name: Remove anonymous users
       community.mysql.mysql_user:
         name: ''
+        host_all: yes
         state: absent
-      loop:
-        - localhost
-        - '%'
+#      loop:
+#        - localhost
+#        - '%'
 
-    - name: Disallow remote root login
-      community.mysql.mysql_user:
-        name: root
-        host: '%'
-        state: absent
+#    - name: Disallow remote root login
+#      community.mysql.mysql_user:
+#        name: root
+#        host: '%'
+#        state: absent
  
-    - name: Remove test database
-      community.mysql.mysql_db:
-        name: test
-        state: absent
-      register: test_db_removal
+#    - name: Remove test database
+#      community.mysql.mysql_db:
+#        name: test
+#        state: absent
+#      register: test_db_removal
  
     - name: Flush privileges
       community.mysql.mysql_query:
