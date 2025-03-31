@@ -4,6 +4,8 @@
     - ../vars/main.yml
   vars:
     wordpress_install_dir: "/var/www/html/wordpress"
+    wordpress_db_host: "{{ hostvars['db_server']['ansible_host'] }}"
+    wordpress_db_password: "{{ lookup('cypher', 'secret=secret/db_user_password') }}"
   tasks:
     - name: Install required packages
       dnf:
