@@ -2,8 +2,8 @@
   become: true
   vars_files:
     - ../vars/main.yml
-    - mariadb_root_password: "{{ lookup('cypher', 'secret=password/db_root_password') }}"
-    - wordpress_db_password: "{{ lookup('cypher', 'secret=password/db_user_password') }}"
+    - mariadb_root_password: "{{ lookup('cypher', 'secret=secret/db_root_password') }}"
+    - wordpress_db_password: "{{ lookup('cypher', 'secret=secret/db_user_password') }}"
   tasks:
     - name: Debug - Test Cypher password lookups
       ansible.builtin.debug:
@@ -46,7 +46,7 @@
       community.mysql.mysql_user:
         name: root
 #        password: "{{ lookup('morpheus_cypher', customOptions.db_root_password) }}"
-        password: "{{ lookup('cypher', 'secret=password/db_root_password') }}"
+        password: "{{ lookup('cypher', 'secret=secret/db_root_password') }}"
         host: "{{ item }}"
         state: present
       loop:
@@ -84,7 +84,7 @@
         state: present
         login_user: root
 #        login_password: "{{ lookup('morpheus_cypher', customOptions.db_root_password) }}"
-        login_password: "{{ lookup('cypher', 'secret=password/db_root_password') }}"
+        login_password: "{{ lookup('cypher', 'secret=secret/db_root_password') }}"
         login_host: localhost
         encoding: utf8mb4
         collation: utf8mb4_general_ci
@@ -93,12 +93,12 @@
       community.mysql.mysql_user:
         name: "{{ wordpress_db_user }}"
 #        password: "{{ lookup('morpheus_cypher', customOptions.db_user_password) }}"
-        password: "{{ lookup('cypher', 'secret=password/db_user_password') }}"
+        password: "{{ lookup('cypher', 'secret=secret/db_user_password') }}"
         priv: "{{ wordpress_db_name }}.*:ALL"
         state: present
         login_user: root
 #        login_password: "{{ lookup('morpheus_cypher', customOptions.db_root_password) }}"
-        login_password: "{{ lookup('cypher', 'secret=password/db_root_password') }}"
+        login_password: "{{ lookup('cypher', 'secret=secret/db_root_password') }}"
         login_host: localhost
  
     - name: Allow MariaDB through firewall
