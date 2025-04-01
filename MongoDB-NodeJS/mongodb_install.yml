@@ -6,28 +6,28 @@
     mongodb_password: "{{ lookup('cypher', 'secret=secret/mongodb_password') }}"
     ansible_python_interpreter: /usr/bin/python3.9
   tasks:
-   - name: Ensure pip is installed
-     ansible.builtin.dnf:
-        name: python3-pip
+    - name: Ensure pip is installed
+      ansible.builtin.dnf:
+          name: python3-pip
+          state: present
+
+    - name: Install pymongo
+      pip:
+        name: pymongo
         state: present
+        executable: pip3 # Explicitly use pip3
 
-   - name: Install pymongo
-     pip:
-       name: pymongo
-       state: present
-       executable: pip3 # Explicitly use pip3
-
-   - name: Add MongoDB repository
-     copy:
-        dest: /etc/yum.repos.d/mongodb-org-7.repo
-        content: |
-          [mongodb-org-7.0]
-          name=MongoDB Repository
-          baseurl=https://repo.mongodb.org/yum/redhat/9/mongodb-org/7.0/x86_64/
-          gpgcheck=1
-          enabled=1
-          gpgkey=https://www.mongodb.org/static/pgp/server-7.0.asc
-        mode: '0644'
+    - name: Add MongoDB repository
+      copy:
+          dest: /etc/yum.repos.d/mongodb-org-7.repo
+          content: |
+            [mongodb-org-7.0]
+            name=MongoDB Repository
+            baseurl=https://repo.mongodb.org/yum/redhat/9/mongodb-org/7.0/x86_64/
+            gpgcheck=1
+            enabled=1
+            gpgkey=https://www.mongodb.org/static/pgp/server-7.0.asc
+          mode: '0644'
 
     - name: Install MongoDB
       dnf:
