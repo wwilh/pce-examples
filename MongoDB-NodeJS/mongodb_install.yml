@@ -3,7 +3,7 @@
   hosts: database
   become: yes
   vars:
-    mongodb_password: "{{ lookup('cypher', 'secret/mongodb_password') }}"
+    mongodb_password: "{{ lookup('cypher', 'secret=secret/mongodb_password') }}"
   tasks:
     - name: Add MongoDB repository
       copy:
@@ -40,7 +40,7 @@
       mongodb_user:
         database: admin
         name: admin
-        password: "{{ lookup('cypher', 'secret/mongodb_admin_password') }}"
+        password: "{{ lookup('cypher', 'secret=secret/mongodb_admin_password') }}"
         roles: "root"
         state: present
       when: ansible_facts['os_family'] == "RedHat"

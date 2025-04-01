@@ -4,7 +4,7 @@
   become: yes
   vars:
     mongodb_host: "{{ hostvars['mongodb_vm']['ansible_host'] }}"
-    mongodb_password: "{{ lookup('cypher', 'secret/mongodb_password') }}"
+    mongodb_password: "{{ lookup('cypher', 'secret=secret/mongodb_password') }}"
   tasks:
     - name: Install EPEL repository for additional packages
       dnf:
