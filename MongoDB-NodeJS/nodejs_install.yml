@@ -7,6 +7,15 @@
     mongodb_password: "{{ lookup('cypher', 'secret=secret/mongodb_password') }}"
 #    ansible_python_interpreter: /usr/bin/python3.9
   tasks:
+    - name: Remove conflicting nsolid packages
+      dnf:
+        name:
+          - nsolid-20.10.0-ns5.0.1.x86_64
+          - nsolid-20.10.0-ns5.0.2.x86_64
+          - nsolid-20.11.0-ns5.0.3.x86_64
+        state: absent
+        ignore_unavailable_packages: yes
+
     - name: Install EPEL repository for additional packages
       dnf:
         name: epel-release
@@ -18,11 +27,14 @@
       args:
         creates: /etc/yum.repos.d/nodesource-el9.repo
 
-    - name: Install Node.js and npm
+    - name: Install Node.js
       dnf:
-        name:
-          - nodejs
-          - npm
+        name: nodejs
+        state: present
+
+    - name: install correct npm from nodesource
+      dnf:
+        name: npm
         state: present
 
     - name: Create application directory
