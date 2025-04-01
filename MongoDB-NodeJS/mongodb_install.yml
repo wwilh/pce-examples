@@ -1,6 +1,6 @@
 ---
 - name: Install MongoDB and dependencies on Rocky 9
-  hosts: mongodb_vm
+  hosts: database
   become: yes
   vars:
     mongodb_password: "{{ lookup('cypher', 'secret/mongodb_password') }}"

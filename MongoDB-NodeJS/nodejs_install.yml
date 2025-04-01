@@ -1,6 +1,6 @@
 ---
 - name: Install Node.js and dependencies on Rocky 9
-  hosts: nodejs_vm
+  hosts: application
   become: yes
   vars:
     mongodb_host: "{{ hostvars['mongodb_vm']['ansible_host'] }}"
