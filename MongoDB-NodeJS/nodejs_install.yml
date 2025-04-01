@@ -5,7 +5,7 @@
   vars:
     mongodb_host: "{{ hostvars['mongodb_vm']['ansible_host'] }}"
     mongodb_password: "{{ lookup('cypher', 'secret=secret/mongodb_password') }}"
-    ansible_python_interpreter: /usr/bin/python3.9
+#    ansible_python_interpreter: /usr/bin/python3.9
   tasks:
     - name: Install EPEL repository for additional packages
       dnf:
