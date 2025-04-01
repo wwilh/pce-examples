@@ -4,6 +4,7 @@
   become: yes
   vars:
     mongodb_password: "{{ lookup('cypher', 'secret=secret/mongodb_password') }}"
+    ansible_python_interpreter: /usr/bin/python3.9
   tasks:
     - name: Add MongoDB repository
       copy:

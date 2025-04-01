@@ -5,7 +5,19 @@
   vars:
     mongodb_host: "{{ hostvars['mongodb_vm']['ansible_host'] }}"
     mongodb_password: "{{ lookup('cypher', 'secret=secret/mongodb_password') }}"
+    ansible_python_interpreter: /usr/bin/python3.9
   tasks:
+#    - name: Ensure pip is installed
+#      ansible.builtin.dnf:
+#        name: python3-pip
+#        state: present
+#
+#    - name: Install pymongo
+#      pip:
+#        name: pymongo
+#        state: present
+#        executable: pip3 # Explicitly use pip3
+
     - name: Install EPEL repository for additional packages
       dnf:
         name: epel-release
