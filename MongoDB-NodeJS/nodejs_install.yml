@@ -7,6 +7,7 @@
     mongodb_password: "{{ lookup('cypher', 'secret=secret/mongodb_password') }}"
     node_version: "20" # Ensure this matches the installed version
     ansible_python_interpreter: /usr/bin/python3.9
+    app_dir: /opt/nodejs_app # Define app_dir here if not already defined
 
   tasks:
     - name: Remove conflicting nsolid packages
@@ -54,7 +55,32 @@
       copy:
         dest: "{{ app_dir }}/index.js"
         content: |
-          # ... (your Node.js app content) ...
+          // const MongoClient = require('mongodb').MongoClient;
+          // const url = 'mongodb://{{ mongodb_user }}:{{ mongodb_password }}@{{ mongodb_host }}:27017';
+          // const dbName = '{{ mongodb_db }}';
+
+          // MongoClient.connect(url, function(err, client) {
+          //   if (err) throw err;
+          //   console.log("Connected to MongoDB!");
+          //   const db = client.db(dbName);
+          //   db.collection('test').insertOne({ message: "Hello World" }, function(err, res) {
+          //     if (err) throw err;
+          //     console.log("Inserted document!");
+          //     client.close();
+          //   });
+          // });
+
+          const http = require('http');
+          const hostname = '0.0.0.0';
+          const port = 3000;
+          const server = http.createServer((req, res) => {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'text/plain');
+            res.end('Hello World from Node.js!\n');
+          });
+          server.listen(port, hostname, () => {
+            console.log(`Server running at http://${hostname}:${port}/`);
+          });
         mode: '0644'
 
     - name: Install MongoDB Node.js driver
