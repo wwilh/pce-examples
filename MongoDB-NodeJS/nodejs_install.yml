@@ -3,7 +3,7 @@
   hosts: application
   become: yes
   vars:
-    mongodb_host: "{{ hostvars['nodejs-ww2.localdomain']['ansible_host'] }}"
+    mongodb_host: "{{ hostvars['mongodbww.localdomain']['ansible_host'] }}"
     mongodb_password: "{{ lookup('cypher', 'secret=secret/mongodb_password') }}"
     node_version: "20" # Ensure this matches the installed version
     ansible_python_interpreter: /usr/bin/python3.9
