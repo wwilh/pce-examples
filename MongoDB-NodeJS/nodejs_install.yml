@@ -6,6 +6,8 @@
     mongodb_host: "{{ hostvars['mongodb_vm']['ansible_host'] }}"
     mongodb_password: "{{ lookup('cypher', 'secret=secret/mongodb_password') }}"
     ansible_python_interpreter: /usr/bin/python3.9
+    node_version: "20" # Or your desired Node.js version
+
   tasks:
     - name: Remove conflicting nsolid packages
       dnf:
@@ -27,23 +29,25 @@
       args:
         creates: /etc/yum.repos.d/nodesource-el9.repo
 
-    - name: Install Node.js
+    - name: Install Node.js (without npm initially)
       dnf:
         name: nodejs
         state: present
 
-    - name: Update dnf cache
-      dnf:
-        update_cache: yes
-
-    - name: Clean dnf cache
-      command: dnf clean all
-
-    - name: install correct npm from nodesource
+    - name: Install correct npm from nodesource (explicitly)
       dnf:
         name: npm
         enablerepo: nodesource-nodejs
         state: present
+        # Try these options if the above fails:
+        # disable_gpg_check: yes
+        # nobest: yes
+
+    - name: Verify npm version
+      command: npm -v
+      register: npm_version
+      changed_when: false
+      failed_when: npm_version.rc != 0
 
     - name: Create application directory
       file:
