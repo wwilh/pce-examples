@@ -32,9 +32,17 @@
         name: nodejs
         state: present
 
+    - name: Update dnf cache
+      dnf:
+        update_cache: yes
+
+    - name: Clean dnf cache
+      command: dnf clean all
+
     - name: install correct npm from nodesource
       dnf:
         name: npm
+        enablerepo: nodesource-nodejs
         state: present
 
     - name: Create application directory
