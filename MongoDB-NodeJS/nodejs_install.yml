@@ -53,6 +53,14 @@
         group: root
         mode: '0755'
 
+    - name: Install MongoDB Node.js driver
+      npm:
+        name: mongodb
+        path: "{{ app_dir }}"
+        state: present
+      register: npm_install
+      failed_when: npm_install.failed
+
     - name: Verify MongoDB module installation
       command: ls "{{ app_dir }}/node_modules/mongodb"
       register: mongodb_check
