@@ -5,6 +5,8 @@
   vars:
     mongodb_host: "{{ hostvars['mongodbww.localdomain']['ansible_host'] }}"
     mongodb_password: "{{ lookup('cypher', 'secret=secret/mongodb_password') }}"
+    mongodb_user: "{{ mongodb_user | default('appuser') }}"  # Match the application user from MongoDB playbook
+    mongodb_db: "{{ mongodb_db | default('test') }}"       # Consistent DB name
     node_version: "20" # Ensure this matches the installed version
     ansible_python_interpreter: /usr/bin/python3.9
     app_dir: /opt/nodejs_app # Define app_dir here if not already defined
@@ -51,6 +53,11 @@
         group: root
         mode: '0755'
 
+    - name: Verify MongoDB module installation
+      command: ls "{{ app_dir }}/node_modules/mongodb"
+      register: mongodb_check
+      failed_when: mongodb_check.rc != 0
+
     - name: Create a simple Node.js app with MongoDB connection
       copy:
         dest: "{{ app_dir }}/index.js"
@@ -63,11 +70,25 @@
           const hostname = '0.0.0.0';
           const port = 3000;
 
+          async function connectToMongoDB(retries = 5, delay = 5000) {
+            let client;
+            for (let i = 0; i < retries; i++) {
+              try {
+                client = await MongoClient.connect(mongodbUrl, { useNewUrlParser: true, useUnifiedTopology: true });
+                console.log('Connected to MongoDB!');
+                return client;
+                catch (err) {
+                console.error(`MongoDB connection attempt ${i + 1} failed:`, err);
+                if (i < retries - 1) await new Promise(resolve => setTimeout(resolve, delay));
+              }
+            }
+            throw new Error('Failed to connect to MongoDB after retries');
+          }
+
           async function startServer() {
             let client;
             try {
-              client = await MongoClient.connect(mongodbUrl, { useNewUrlParser: true, useUnifiedTopology: true });
-              console.log('Connected to MongoDB!');
+              client = await connectToMongoDB();
               const db = client.db(dbName);
 
               await db.collection('test').insertOne({ message: 'Hello from Node.js', timestamp: new Date() });
@@ -117,11 +138,23 @@
     - name: Reload systemd daemon
       command: systemctl daemon-reload
 
+    - name: Ensure MongoDB is reachable
+      wait_for:
+        host: "{{ mongodb_host }}"
+        port: 27017
+        state: started
+        timeout: 60
+      delegate_to: localhost  # Run from Ansible controller to ensure MongoDB VM is up
+
     - name: Enable and start Node.js service
       systemd:
         name: nodejs-app
         enabled: yes
         state: restarted
+
+    - name: Wait briefly for service to initialize
+      pause:
+        seconds: 5
 
     - name: Wait for Node.js app to be available
       wait_for:
