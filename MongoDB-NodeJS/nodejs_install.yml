@@ -3,7 +3,7 @@
   hosts: application
   become: yes
   vars:
-    mongodb_host: "{{ hostvars['mongodbww.localdomain']['ansible_host'] }}"
+    mongodb_host: "{{ hostvars['mongodbww1.localdomain']['ansible_host'] }}"
     mongodb_password: "{{ lookup('cypher', 'secret=secret/mongodb_password') }}"
     mongodb_user: "{{ mongodb_user | default('appuser') }}"  # Match the application user from MongoDB playbook
     mongodb_db: "{{ mongodb_db | default('test') }}"       # Consistent DB name
