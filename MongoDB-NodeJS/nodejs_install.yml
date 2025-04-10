@@ -51,6 +51,47 @@
         group: root
         mode: '0755'
 
+    - name: Create a simple Node.js app with MongoDB connection
+      copy:
+        dest: "{{ app_dir }}/index.js"
+        content: |
+          const { MongoClient } = require('mongodb');
+          const http = require('http');
+
+          const mongodbUrl = 'mongodb://{{ mongodb_user | default('admin') }}:{{ mongodb_password }}@{{ mongodb_host }}:27017';
+          const dbName = '{{ mongodb_db | default('test') }}';
+          const hostname = '0.0.0.0';
+          const port = 3000;
+
+          async function startServer() {
+            let client;
+            try {
+              client = await MongoClient.connect(mongodbUrl, { useNewUrlParser: true, useUnifiedTopology: true });
+              console.log('Connected to MongoDB!');
+              const db = client.db(dbName);
+
+              await db.collection('test').insertOne({ message: 'Hello from Node.js', timestamp: new Date() });
+              console.log('Inserted document into MongoDB!');
+
+              const server = http.createServer((req, res) => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'text/plain');
+                res.end('Hello World from Node.js with MongoDB!\n');
+              });
+
+              server.listen(port, hostname, () => {
+                console.log(`Server running at http://${hostname}:${port}/`);
+              });
+
+            } catch (err) {
+              console.error('Error:', err);
+              process.exit(1);
+            }
+          }
+
+          startServer();
+        mode: '0644'
+  
     - name: Create systemd service for Node.js app
       copy:
         dest: /etc/systemd/system/nodejs-app.service
@@ -65,6 +106,9 @@
           Restart=always
           User=root
           Group=root
+          StandardOutput=journal
+          StandardError=journal
+          RestartSec=5
 
           [Install]
           WantedBy=multi-user.target
