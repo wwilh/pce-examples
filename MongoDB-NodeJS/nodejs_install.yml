@@ -147,14 +147,11 @@
       command: systemctl daemon-reload
 
     - name: Ensure MongoDB is reachable
-      hosts: "{{ groups['database'][0] }}"
       become: yes
       wait_for:
-        host: "{{ mongodb_host }}"
+        host: "{{ {{ groups['database'][0] }} }}"
         port: 27017
-        state: started
         timeout: 60
-#      delegate_to: localhost  # Run from Ansible controller to ensure MongoDB VM is up
 
     - name: Enable and start Node.js service
       systemd:
