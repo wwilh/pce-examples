@@ -149,7 +149,7 @@
     - name: Ensure MongoDB is reachable
       become: yes
       wait_for:
-        host: "{{ {{ groups['database'][0] }} }}"
+        host: "{{ hostvars[groups['database'][0]] }}"
         port: 27017
         timeout: 60
 
