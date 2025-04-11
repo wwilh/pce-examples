@@ -93,7 +93,7 @@
                 client = await MongoClient.connect(mongodbUrl, { useNewUrlParser: true, useUnifiedTopology: true });
                 console.log('Connected to MongoDB!');
                 return client;
-                catch (err) {
+              } catch (err) {
                 console.error(`MongoDB connection attempt ${i + 1} failed:`, err);
                 if (i < retries - 1) await new Promise(resolve => setTimeout(resolve, delay));
               }
