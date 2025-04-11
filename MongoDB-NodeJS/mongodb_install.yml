@@ -25,6 +25,7 @@
       register: sudo_check_verify
       ignore_errors: true
       failed_when: sudo_check_verify.rc != 0
+      no_changed_when: true
 
     - name: Display status of passwordless sudo
       ansible.builtin.debug:
@@ -105,5 +106,3 @@
       ansible.builtin.systemd_service:
         name: mongod
         state: restarted
-
-...

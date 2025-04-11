@@ -1,7 +1,7 @@
 ---
 - name: Install Node.js and dependencies on Rocky 9
   hosts: application
-  become: yes
+  become: true
 
   tasks:
     - name: Remove conflicting nsolid packages
@@ -11,18 +11,34 @@
           - nsolid-20.10.0-ns5.0.2.x86_64
           - nsolid-20.11.0-ns5.0.3.x86_64
         state: absent
-      ignore_errors: yes
+      ignore_errors: true
 
     - name: Install EPEL repository for additional packages
       ansible.builtin.dnf:
         name: epel-release
         state: present
 
-    - name: Add Node.js repository
-      ansible.builtin.shell: |
-        curl -fsSL https://rpm.nodesource.com/setup_{{ node_version }}.x | bash -
+    # - name: Add Node.js repository
+    #   ansible.builtin.shell: |
+    #     curl -fsSL https://rpm.nodesource.com/setup_{{ node_version }}.x | bash -
+    #   args:
+    #     creates: /etc/yum.repos.d/nodesource-el9.repo
+
+    - name: Download Node.js repository setup script
+      ansible.builtin.get_url:
+        url: "https://rpm.nodesource.com/setup_{{ node_version }}.x"
+        dest: "/tmp/nodesource_setup.sh"
+        mode: '0755'  # Make the script executable
+      register: download_result
+      until: download_result is succeeded
+      retries: 3
+      delay: 2
+
+    - name: Add Node.js repository by executing the setup script
+      ansible.builtin.command: "/bin/bash /tmp/nodesource_setup.sh"
       args:
         creates: /etc/yum.repos.d/nodesource-el9.repo
+      when: download_result is succeeded
 
     - name: Install Node.js (including npm from NodeSource)
       ansible.builtin.dnf:
@@ -112,7 +128,7 @@
 
           startServer();
         mode: '0644'
-  
+
     - name: Create systemd service for Node.js app
       ansible.builtin.copy:
         dest: /etc/systemd/system/nodejs-app.service
@@ -136,7 +152,8 @@
         mode: '0644'
 
     - name: Reload systemd daemon
-      ansible.builtin.command: systemctl daemon-reload
+      ansible.builtin.systemd_service:
+        daemon_reload: true
 
     - name: Configure firewall for outgoing MongoDB connection
       ansible.posix.firewalld:
@@ -149,10 +166,9 @@
       ansible.builtin.systemd:
         name: firewalld
         state: reloaded
-      when: inventory_hostname == 'nodejsww5.localdomain'
 
     - name: Ensure MongoDB is reachable
-      become: yes
+      become: true
       ansible.builtin.wait_for:
         host: "{{ mongodb_host }}"
         port: "{{ mongodb_port }}"
@@ -161,7 +177,7 @@
     - name: Enable and start Node.js service
       ansible.builtin.systemd_service:
         name: nodejs-app
-        enabled: yes
+        enabled: true
         state: restarted
 
     - name: Wait briefly for service to initialize
@@ -174,4 +190,3 @@
         port: 3000
         state: started
         timeout: 30
-...
