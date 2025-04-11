@@ -17,15 +17,24 @@
         create: true
         state: present
         line: "{{ ansible_user }} ALL=(ALL) NOPASSWD: ALL"
+        mode: '0440'  # Standard permissions for sudoers.d files
+        owner: root
+        group: root
         validate: '/usr/sbin/visudo -cf %s'
       when: sudo_check.rc != 0
 
     - name: Verify passwordless sudo configuration
-      ansible.builtin.command: sudo -n true
+      ansible.builtin.command:
+        cmd: sudo -n true
       register: sudo_check_verify
       ignore_errors: true
-      failed_when: sudo_check_verify.rc != 0
-      no_changed_when: true
+      changed_when: false
+
+    - name: Fail if sudo is not passwordless
+      ansible.builtin.assert:
+        that: sudo_check_verify.rc == 0
+        fail_msg: "Passwordless sudo is not configured"
+        success_msg: "Passwordless sudo is configured"
 
     - name: Display status of passwordless sudo
       ansible.builtin.debug:
