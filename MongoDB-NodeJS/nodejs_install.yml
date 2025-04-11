@@ -157,7 +157,7 @@
 
     - name: Configure firewall for outgoing MongoDB connection
       ansible.posix.firewalld:
-        rich_rule: 'rule family="ipv4" destination address="{{ mongodb_host }}" <port protocol="tcp" port="{{ mongodb_port }}"/> accept'
+        rich_rule: 'rule family="ipv4" destination address="{{ mongodb_host }}" port port="{{ mongodb_port }}" protocol="tcp" accept'
         permanent: true
         state: enabled
       when: inventory_hostname == nodejs_hostname   # Apply only to nodejs host
