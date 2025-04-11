@@ -2,18 +2,10 @@
 - name: Install Node.js and dependencies on Rocky 9
   hosts: application
   become: yes
-  vars:
-    mongodb_host: "{{ hostvars[groups['database'][0]]['ansible_host']  }}"
-    mongodb_password: "{{ lookup('cypher', 'secret=secret/mongodb_password') }}"
-#    mongodb_user: "{{ mongodb_user | default('appuser') }}"  # Match the application user from MongoDB playbook
-#    mongodb_db: "{{ mongodb_db | default('test') }}"       # Consistent DB name
-    node_version: "20" # Ensure this matches the installed version
-    ansible_python_interpreter: /usr/bin/python3.9
-    app_dir: /opt/nodejs_app # Define app_dir here if not already defined
 
   tasks:
     - name: Remove conflicting nsolid packages
-      dnf:
+      ansible.builtin.dnf:
         name:
           - nsolid-20.10.0-ns5.0.1.x86_64
           - nsolid-20.10.0-ns5.0.2.x86_64
@@ -22,31 +14,31 @@
       ignore_errors: yes
 
     - name: Install EPEL repository for additional packages
-      dnf:
+      ansible.builtin.dnf:
         name: epel-release
         state: present
 
     - name: Add Node.js repository
-      shell: |
+      ansible.builtin.shell: |
         curl -fsSL https://rpm.nodesource.com/setup_{{ node_version }}.x | bash -
       args:
         creates: /etc/yum.repos.d/nodesource-el9.repo
 
     - name: Install Node.js (including npm from NodeSource)
-      dnf:
+      ansible.builtin.dnf:
         name: "nodejs" # Installing 'nodejs' from NodeSource should include the correct npm
         state: present
         enablerepo: nodesource-nodejs
         # Remove the separate npm installation task for now
 
     - name: Verify npm version
-      command: npm -v
+      ansible.builtin.command: npm -v
       register: npm_version
       changed_when: false
       failed_when: npm_version.rc != 0
 
     - name: Create application directory
-      file:
+      ansible.builtin.file:
         path: "{{ app_dir }}"
         state: directory
         owner: root
@@ -54,7 +46,7 @@
         mode: '0755'
 
     - name: Install MongoDB Node.js driver
-      npm:
+      community.general.npm:
         name: mongodb
         path: "{{ app_dir }}"
         state: present
@@ -62,12 +54,12 @@
       failed_when: npm_install.failed
 
     - name: Verify MongoDB module installation
-      command: ls "{{ app_dir }}/node_modules/mongodb"
+      ansible.builtin.command: ls "{{ app_dir }}/node_modules/mongodb"
       register: mongodb_check
       failed_when: mongodb_check.rc != 0
 
     - name: Create a simple Node.js app with MongoDB connection
-      copy:
+      ansible.builtin.copy:
         dest: "{{ app_dir }}/index.js"
         content: |
           const { MongoClient } = require('mongodb');
@@ -122,7 +114,7 @@
         mode: '0644'
   
     - name: Create systemd service for Node.js app
-      copy:
+      ansible.builtin.copy:
         dest: /etc/systemd/system/nodejs-app.service
         content: |
           [Unit]
@@ -144,28 +136,42 @@
         mode: '0644'
 
     - name: Reload systemd daemon
-      command: systemctl daemon-reload
+      ansible.builtin.command: systemctl daemon-reload
+
+    - name: Configure firewall for outgoing MongoDB connection
+      ansible.posix.firewalld:
+        rich_rule: 'rule family="ipv4" destination address="{{ mongodb_host }}" port={{ mongodb_port }} protocol=tcp accept'
+        permanent: true
+        state: enabled
+      when: inventory_hostname == 'nodejsww5.localdomain' # Apply only to nodejsww5
+
+    - name: Reload firewalld on nodejsww5
+      ansible.builtin.systemd:
+        name: firewalld
+        state: reloaded
+      when: inventory_hostname == 'nodejsww5.localdomain'
 
     - name: Ensure MongoDB is reachable
       become: yes
-      wait_for:
+      ansible.builtin.wait_for:
         host: "{{ mongodb_host }}"
-        port: 27017
+        port: "{{ mongodb_port }}"
         timeout: 60
 
     - name: Enable and start Node.js service
-      systemd:
+      ansible.builtin.systemd_service:
         name: nodejs-app
         enabled: yes
         state: restarted
 
     - name: Wait briefly for service to initialize
-      pause:
+      ansible.builtin.pause:
         seconds: 5
 
     - name: Wait for Node.js app to be available
-      wait_for:
+      ansible.builtin.wait_for:
         host: 0.0.0.0
         port: 3000
         state: started
         timeout: 30
+...

@@ -1,36 +1,33 @@
 ---
 - name: Install MongoDB and dependencies on Rocky 9
   hosts: database
-  become: yes
+  become: true
   gather_facts: true
-  vars:
-    mongodb_password: "{{ lookup('cypher', 'secret=secret/mongodb_password') }}"
-    ansible_python_interpreter: /usr/bin/python3.9
   tasks:
     - name: Check if Ansible user has passwordless sudo
-      command: sudo -n true
+      ansible.builtin.command: sudo -n true
       register: sudo_check
-      ignore_errors: yes
+      ignore_errors: true
       changed_when: sudo_check.rc != 0
 
     - name: Configure passwordless sudo for Ansible user
-      become: yes
+      become: true
       ansible.builtin.lineinfile:
         path: /etc/sudoers.d/ansible
-        create: yes
+        create: true
         state: present
         line: "{{ ansible_user }} ALL=(ALL) NOPASSWD: ALL"
         validate: '/usr/sbin/visudo -cf %s'
       when: sudo_check.rc != 0
 
     - name: Verify passwordless sudo configuration
-      command: sudo -n true
+      ansible.builtin.command: sudo -n true
       register: sudo_check_verify
-      ignore_errors: yes
+      ignore_errors: true
       failed_when: sudo_check_verify.rc != 0
 
     - name: Display status of passwordless sudo
-      debug:
+      ansible.builtin.debug:
         msg: "Passwordless sudo for user '{{ ansible_user }}' is configured."
       when: sudo_check_verify.rc == 0
 
@@ -40,62 +37,73 @@
         state: present
 
     - name: Install pymongo
-      pip:
+      ansible.builtin.pip:
         name: pymongo
         state: present
         executable: pip3 # Explicitly use pip3
 
     - name: Add MongoDB repository
-      copy:
-          dest: /etc/yum.repos.d/mongodb-org-7.repo
-          content: |
-            [mongodb-org-7.0]
-            name=MongoDB Repository
-            baseurl=https://repo.mongodb.org/yum/redhat/9/mongodb-org/7.0/x86_64/
-            gpgcheck=1
-            enabled=1
-            gpgkey=https://www.mongodb.org/static/pgp/server-7.0.asc
-          mode: '0644'
+      ansible.builtin.copy:
+        dest: /etc/yum.repos.d/mongodb-org-7.repo
+        content: |
+          [mongodb-org-7.0]
+          name=MongoDB Repository
+          baseurl=https://repo.mongodb.org/yum/redhat/9/mongodb-org/7.0/x86_64/
+          gpgcheck=1
+          enabled=1
+          gpgkey=https://www.mongodb.org/static/pgp/server-7.0.asc
+        mode: '0644'
 
     - name: Install MongoDB
-      dnf:
+      ansible.builtin.dnf:
         name:
           - mongodb-org
         state: present
 
     - name: Start and enable MongoDB
-      service:
+      ansible.builtin.systemd_service:
         name: mongod
         state: started
-        enabled: yes
+        enabled: true
 
     - name: Configure MongoDB to listen on all interfaces
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: /etc/mongod.conf
         regexp: '^  bindIp:'
         line: '  bindIp: 0.0.0.0'
       notify: Restart MongoDB
 
+    - name: Allow incoming TCP traffic on MongoDB port 27017
+      ansible.posix.firewalld:
+        port: "{{ mongodb_port }}/tcp"
+        permanent: true
+        state: enabled
+
+    - name: Reload firewalld to apply changes
+      ansible.builtin.systemd_service:
+        name: firewalld
+        state: reloaded
+
     - name: Create MongoDB admin user
-      mongodb_user:
+      community.mongodb.mongodb_user:
         database: admin
         name: admin
         password: "{{ lookup('cypher', 'secret=secret/mongodb_admin_password') }}"
         roles: "root"
         state: present
-      when: ansible_facts['os_family'] == "RedHat"
 
     - name: Create MongoDB application user
-      mongodb_user:
+      community.mongodb.mongodb_user:
         database: "{{ mongodb_db }}"
         name: "{{ mongodb_user }}"
         password: "{{ mongodb_password }}"
         roles: "readWrite"
         state: present
-      when: ansible_facts['os_family'] == "RedHat"
 
   handlers:
     - name: Restart MongoDB
-      service:
+      ansible.builtin.systemd_service:
         name: mongod
         state: restarted
+
+...
