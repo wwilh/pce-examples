@@ -2,8 +2,10 @@
 # Node.js and MongoDB shared variables
 node_version: "20"              # Node.js version (LTS as of March 2025)
 app_dir: "/opt/nodejs_app"      # Directory for the Node.js application
-mongodb_db: "nodejs_db"         # MongoDB database name
-mongodb_user: "nodejs_user"     # MongoDB application user
+nodejs_hostname: "{{ groups['application'][0] }}"                             # NodeJS hostname
+mongodb_db: "test"              # MongoDB database name
+mongodb_user: "appuser"         # MongoDB application user
+mongodb_hostname: "{{ groups['database'][0] }}"                               # MongoDB hostname
 mongodb_host: "{{ hostvars[groups['database'][0]]['ansible_host']  }}"        # MongoDB server IP address
 mongodb_password: "{{ lookup('cypher', 'secret=secret/mongodb_password') }}"  # Morpheus secret
 mongodb_port: 27017             # Port used by MongoDB
