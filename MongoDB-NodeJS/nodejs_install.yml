@@ -9,7 +9,7 @@
         path: /etc/rc.d/rc.local
         mode: '0755'
         state: touch
-      become: true 
+      become: true
 
     - name: Remove conflicting nsolid packages
       ansible.builtin.dnf:
