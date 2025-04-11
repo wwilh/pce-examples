@@ -8,5 +8,3 @@ mongodb_host: "{{ hostvars[groups['database'][0]]['ansible_host']  }}"        # 
 mongodb_password: "{{ lookup('cypher', 'secret=secret/mongodb_password') }}"  # Morpheus secret
 mongodb_port: 27017             # Port used by MongoDB
 ansible_python_interpreter: /usr/bin/python3.9
-node_version: "20"              # Ensure this matches the installed version
-app_dir: /opt/nodejs_app        # Define app_dir here if not already defined
