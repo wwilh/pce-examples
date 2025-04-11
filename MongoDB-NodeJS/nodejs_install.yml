@@ -4,6 +4,13 @@
   become: true
 
   tasks:
+    - name: Ensure rc.local is executable
+      ansible.builtin.file:
+        path: /etc/rc.d/rc.local
+        mode: '0755'
+        state: touch
+      become: true 
+
     - name: Remove conflicting nsolid packages
       ansible.builtin.dnf:
         name:
@@ -81,7 +88,7 @@
           const { MongoClient } = require('mongodb');
           const http = require('http');
 
-          const mongodbUrl = 'mongodb://{{ mongodb_user | default('admin') }}:{{ mongodb_password }}@{{ mongodb_host }}:27017';
+          const mongodbUrl = 'mongodb://{{ mongodb_user }}:{{ mongodb_password }}@{{ mongodb_host }}:27017';
           const dbName = '{{ mongodb_db | default('test') }}';
           const hostname = '0.0.0.0';
           const port = 3000;
@@ -189,4 +196,4 @@
         host: 0.0.0.0
         port: 3000
         state: started
-        timeout: 30
+        timeout: 60
