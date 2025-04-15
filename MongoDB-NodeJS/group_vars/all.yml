@@ -8,6 +8,6 @@ mongodb_user: "appuser"         # MongoDB application user
 mongodb_hostname: "{{ groups['database'][0] }}"                               # MongoDB hostname
 mongodb_host: "{{ hostvars[groups['database'][0]]['ansible_host']  }}"        # MongoDB server IP address
 # mongodb_password: "{{ lookup('cypher', 'secret=secret/mongodb_password') }}"  # Morpheus secret
-mongodb_password: "#HPE2learn"  # Morpheus secret
+mongodb_password: "HPE2learn"  # Morpheus secret
 mongodb_port: 27017             # Port used by MongoDB
 ansible_python_interpreter: /usr/bin/python3.9
