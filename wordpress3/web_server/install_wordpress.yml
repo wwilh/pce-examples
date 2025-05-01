@@ -10,7 +10,7 @@
 #        ansible_ssh_private_key_file: "{{ morpheus.instance.sshPrivateKey | default('/path/to/default/key') }}"
 
 
-- Name: Install wordpress
+- name: Install wordpress
   hosts: current_instance
 #  hosts: web_server.localdomain
   become: true
