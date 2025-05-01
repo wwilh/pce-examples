@@ -1,5 +1,17 @@
+---
+- name: Add Morpheus instance to inventory
+  hosts: localhost
+  tasks:
+    - name: Add current instance to in-memory inventory
+      ansible.builtin.add_host:
+        hostname: "{{ morpheus.instance.ip }}"
+        groups: current_instance
+#        ansible_user: "{{ morpheus.instance.sshUsername | default('admin') }}"
+#        ansible_ssh_private_key_file: "{{ morpheus.instance.sshPrivateKey | default('/path/to/default/key') }}"
+
 - name: Install MariaDB on the instance
-  hosts: db_server.localdomain
+  hosts: current_instance
+#  hosts: db_server.localdomain
   become: true
   vars_files:
     - ../vars/main.yml
