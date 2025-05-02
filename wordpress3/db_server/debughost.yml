@@ -1,0 +1,13 @@
+---
+- name: Debug IP
+  hosts: localhost
+  tasks:
+    - ansible.builtin.debug:
+        msg: "Target IP: {{ morpheus.instance.ip }}, Target Hostname: {{ morpheus.instance.hostname }}"
+
+- name: Debug IP again
+  hosts: "{{ morpheus.instance.hostname }}"
+  tasks:
+    - ansible.builtin.debug:
+        msg: "Target IP: {{ morpheus.instance.ip }}, Target Hostname: {{ morpheus.instance.hostname }}"
+
