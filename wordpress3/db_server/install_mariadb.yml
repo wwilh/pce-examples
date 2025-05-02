@@ -3,8 +3,7 @@
   hosts: localhost
   tasks:
     - ansible.builtin.debug:
-        msg: "Target IP: {{ morpheus.instance.ip }}"
-        msg: "Target Hostname: {{ morpheus.instance.hostname }}"
+        msg: "Target IP: {{ morpheus.instance.ip }}, Target Hostname: {{ morpheus.instance.hostname }}"
 
 - name: Add Morpheus instance to inventory
   hosts: localhost
