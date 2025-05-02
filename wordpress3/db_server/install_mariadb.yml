@@ -1,4 +1,10 @@
 ---
+- name: Debug IP
+  hosts: localhost
+  tasks:
+    - ansible.builtin.debug:
+        msg: "Target IP: {{ morpheus.instance.ip }}"
+
 - name: Add Morpheus instance to inventory
   hosts: localhost
   tasks:

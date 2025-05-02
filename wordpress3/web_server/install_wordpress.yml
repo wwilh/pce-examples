@@ -1,4 +1,10 @@
 ---
+- name: Debug IP
+  hosts: localhost
+  tasks:
+    - ansible.builtin.debug:
+        msg: "Target IP: {{ morpheus.instance.ip }}"
+
 - name: Add Morpheus instance to inventory
   hosts: localhost
   tasks:
@@ -8,7 +14,6 @@
         groups: current_instance
 #        ansible_user: "{{ morpheus.instance.sshUsername | default('admin') }}"
 #        ansible_ssh_private_key_file: "{{ morpheus.instance.sshPrivateKey | default('/path/to/default/key') }}"
-
 
 - name: Install wordpress
   hosts: current_instance
