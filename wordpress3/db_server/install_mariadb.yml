@@ -1,22 +1,22 @@
 ---
-- name: Debug IP
-  hosts: localhost
-  tasks:
-    - ansible.builtin.debug:
-        msg: "Target IP: {{ morpheus.instance.ip }}, Target Hostname: {{ morpheus.instance.hostname }}"
-
-- name: Add Morpheus instance to inventory
-  hosts: localhost
-  tasks:
-    - name: Add current instance to in-memory inventory
-      ansible.builtin.add_host:
-        hostname: "{{ morpheus.instance.ip }}"
-        groups: current_instance
+# - name: Debug IP
+#   hosts: localhost
+#   tasks:
+#     - ansible.builtin.debug:
+#         msg: "Target IP: {{ morpheus.instance.ip }}, Target Hostname: {{ morpheus.instance.hostname }}"
+#
+# - name: Add Morpheus instance to inventory
+#   hosts: localhost
+#   tasks:
+#     - name: Add current instance to in-memory inventory
+#       ansible.builtin.add_host:
+#         hostname: "{{ morpheus.instance.hostname }}"
+#         groups: current_instance
 #        ansible_user: "{{ morpheus.instance.sshUsername | default('admin') }}"
 #        ansible_ssh_private_key_file: "{{ morpheus.instance.sshPrivateKey | default('/path/to/default/key') }}"
-
+#
 - name: Install MariaDB on the instance
-  hosts: current_instance
+  hosts: "{{ morpheus.instance.hostname }}"
 #  hosts: db_server.localdomain
   become: true
   vars_files:
