@@ -17,7 +17,7 @@
 
 - name: Install wordpress
 #  hosts: "{{ morpheus.instance.group }}"
-  hosts: "{{ morpheus['instance']['group'] }}"
+  hosts: "{{ morpheus['instance']['hostname'] }}"
 #  hosts: web_server.localdomain
   become: true
   vars_files:
