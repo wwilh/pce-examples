@@ -50,3 +50,11 @@ env/
 #####################
 .env
 .env.*
+
+# Other files
+#####################
+addusers/addusers_prov.md
+addusers/addusers_prov.sh
+addusers/adduser.py
+addusers/addusers.sh
+addusers/README.md
