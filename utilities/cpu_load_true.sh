@@ -3,6 +3,8 @@
 # Script to generate a load on 80% of CPU cores.
 # If there is only one core, the load is generated on that core.
 # To stop: killall true
+
+# Get the total number of CPU cores
 num_cores=$(nproc)
 cores_to_load=$(echo "scale=0; $num_cores * 0.8 / 1" | bc)
 
